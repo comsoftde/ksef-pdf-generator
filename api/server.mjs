@@ -1,4 +1,5 @@
 import express from "express";
+import { chromium } from "playwright";
 
 const app = express();
 app.use(express.text({ type: "*/*", limit: "15mb" }));
@@ -7,14 +8,34 @@ app.get("/health", (req, res) => res.status(200).send("ok"));
 
 app.post("/render/invoice", async (req, res) => {
   const xml = req.body;
+  if (!xml || typeof xml !== "string") return res.status(400).send("XML required");
 
-  if (!xml || typeof xml !== "string") {
-    return res.status(400).send("XML required");
-  }
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
 
-  // NA START: zwracamy "placeholder" aby upewnić się, że REST działa.
-  // Docelowo tu podłączymy właściwe generowanie PDF.
-  res.status(501).send("PDF generator not wired yet (REST works).");
+  // ładujemy zbudowaną stronę generatora (dist)
+  await page.goto("file:///app/dist/index.html", { waitUntil: "networkidle" });
+
+  // TODO: DOPASUJ do realnej funkcji/ścieżki w aplikacji
+  // Na razie próbujemy wywołać window.generateInvoicePdf(xml) i oczekujemy Uint8Array/ArrayBuffer.
+  const base64 = await page.evaluate(async (invoiceXml) => {
+    if (typeof window.generateInvoicePdf !== "function") {
+      throw new Error("window.generateInvoicePdf is not available. Need to expose generator function in the frontend.");
+    }
+    const bytes = await window.generateInvoicePdf(invoiceXml);
+
+    const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    let binary = "";
+    for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
+    return btoa(binary);
+  }, xml);
+
+  await browser.close();
+
+  const pdf = Buffer.from(base64, "base64");
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "inline; filename=invoice.pdf");
+  res.send(pdf);
 });
 
 const port = process.env.PORT || 8080;
