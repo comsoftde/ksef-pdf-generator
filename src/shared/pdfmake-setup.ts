@@ -1,27 +1,12 @@
 import pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 export function setupPdfMakeFonts(): void {
-  // vfs może siedzieć w różnych miejscach zależnie od bundlera/ESM
-  const anyFonts: any = pdfFonts as any;
+  // Po `import "pdfmake/build/vfs_fonts"` VFS powinien być już w pdfMake.vfs
+  const vfs = (pdfMake as any).vfs;
 
-  const vfs =
-    anyFonts?.pdfMake?.vfs ??
-    anyFonts?.vfs ??
-    anyFonts?.default?.pdfMake?.vfs ??
-    anyFonts?.default?.vfs;
-
-  if (!vfs) {
-    // pomocniczo: pokaż co realnie przyszło w module (do debug)
-    // eslint-disable-next-line no-console
-    console.error("pdfFonts module keys:", Object.keys(anyFonts));
-    // eslint-disable-next-line no-console
-    console.error("pdfFonts.default keys:", anyFonts?.default ? Object.keys(anyFonts.default) : null);
-
-    throw new Error("pdfmake vfs not found (vfs_fonts import mismatch)");
+  if (!vfs || Object.keys(vfs).length === 0) {
+    throw new Error("pdfmake vfs is empty - ensure import 'pdfmake/build/vfs_fonts' is executed in entrypoint");
   }
-
-  (pdfMake as any).vfs = vfs;
 
   (pdfMake as any).fonts = {
     Roboto: {
