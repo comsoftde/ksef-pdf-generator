@@ -62,24 +62,21 @@ inputUPO.addEventListener('change', async (): Promise<void> => {
 
 declare global {
   interface Window {
-    generateInvoicePdf?: (xml: string) => Promise<Uint8Array>;
+    generateInvoicePdf?: (xml: string, additionalData?: any) => Promise<Uint8Array>;
   }
 }
 
 // Minimalne additionalData — dopasuj jeśli Twoje UI wymaga pól obowiązkowych
+
 const defaultAdditionalData: any = {};
 
 console.log("[PUBLIC] setting window.generateInvoicePdf");
 
-window.generateInvoicePdf = async (xml: string) => {
-  // Zrób File z XML (w przeglądarce Playwright mamy File i Blob)
+window.generateInvoicePdf = async (xml: string, additionalData: any = {}) => {
   const blob = new Blob([xml], { type: "application/xml" });
   const file = new File([blob], "invoice.xml", { type: "application/xml" });
 
-  // Poproś generator o Blob PDF
-  const pdfBlob = await generateInvoice(file, defaultAdditionalData, "blob");
-
-  // Zamień Blob -> bytes
+  const pdfBlob = await generateInvoice(file, additionalData, "blob");
   const buf = await pdfBlob.arrayBuffer();
   return new Uint8Array(buf);
 };
