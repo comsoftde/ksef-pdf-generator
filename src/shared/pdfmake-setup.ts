@@ -1,19 +1,19 @@
 import pdfMake from "pdfmake/build/pdfmake";
 
-export function setupPdfMakeFonts(): void {
-  // Po `import "pdfmake/build/vfs_fonts"` VFS powinien być już w pdfMake.vfs
-  const vfs = (pdfMake as any).vfs;
+// Vite: import jako base64
+import NotoSans from "../assets/fonts/NotoSans-Regular.ttf?base64";
 
-  if (!vfs || Object.keys(vfs).length === 0) {
-    throw new Error("pdfmake vfs is empty - ensure import 'pdfmake/build/vfs_fonts' is executed in entrypoint");
-  }
+export function setupPdfMakeFonts(): void {
+  (pdfMake as any).vfs = {
+    "NotoSans-Regular.ttf": NotoSans,
+  };
 
   (pdfMake as any).fonts = {
-    Roboto: {
-      normal: "Roboto-Regular.ttf",
-      bold: "Roboto-Medium.ttf",
-      italics: "Roboto-Italic.ttf",
-      bolditalics: "Roboto-MediumItalic.ttf",
+    Noto: {
+      normal: "NotoSans-Regular.ttf",
+      bold: "NotoSans-Regular.ttf",
+      italics: "NotoSans-Regular.ttf",
+      bolditalics: "NotoSans-Regular.ttf",
     },
   };
 }
