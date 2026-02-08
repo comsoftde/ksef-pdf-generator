@@ -11,7 +11,7 @@ app.use(express.json({ limit: "15mb" }));
 app.use(express.text({ type: "*/*", limit: "15mb" }));
 
 // serwuj build frontu
-app.use("/", express.static("/app/dist"));
+// app.use("/", express.static("/app/dist"));
 
 
 function requireApiKey(req, res, next) {
