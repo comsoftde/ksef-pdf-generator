@@ -39,6 +39,7 @@ export function generateFA2(invoice: Faktura, additionalData: AdditionalDataType
   const rabatOrRowsInvoice: Content = isKOR_RABAT ? generateRabat(invoice.Fa!) : generateWiersze(invoice.Fa!);
   const docDefinition: TDocumentDefinitions = {
     defaultStyle: { font: "Roboto" },  
+    
     content: [
       ...generateNaglowek(invoice.Fa, additionalData),
       generateDaneFaKorygowanej(invoice.Fa),
