@@ -53,3 +53,29 @@ inputUPO.addEventListener('change', async (): Promise<void> => {
     URL.revokeObjectURL(url);
   });
 });
+
+import { generateInvoice } from '../lib-public';
+// (jeśli już masz import generateInvoice, to nie dubluj)
+
+declare global {
+  interface Window {
+    generateInvoicePdf?: (xml: string) => Promise<Uint8Array>;
+  }
+}
+
+// Minimalne additionalData — dopasuj jeśli Twoje UI wymaga pól obowiązkowych
+const defaultAdditionalData: any = {};
+
+window.generateInvoicePdf = async (xml: string) => {
+  // Zrób File z XML (w przeglądarce Playwright mamy File i Blob)
+  const blob = new Blob([xml], { type: "application/xml" });
+  const file = new File([blob], "invoice.xml", { type: "application/xml" });
+
+  // Poproś generator o Blob PDF
+  const pdfBlob = await generateInvoice(file, defaultAdditionalData, "blob");
+
+  // Zamień Blob -> bytes
+  const buf = await pdfBlob.arrayBuffer();
+  return new Uint8Array(buf);
+};
+
