@@ -133,13 +133,27 @@ page.on("requestfailed", (req) =>
   }
 });
 
-app.use("/", (req, res, next) => {
-  // publiczny internet ma nie oglądać UI
-  if (req.ip !== "127.0.0.1" && req.ip !== "::1") {
-    return res.status(404).send("Not found");
-  }
+// 1) Statyki (index.html + assets) – dostępne tylko lokalnie w kontenerze
+app.use((req, res, next) => {
+  // Pozwól tylko na loopback / docker bridge
+  const ip = req.socket.remoteAddress || "";
+
+  const isLocal =
+    ip === "127.0.0.1" ||
+    ip === "::1" ||
+    ip.startsWith("::ffff:127.0.0.1") ||
+    ip.startsWith("10.") ||      // często adresy sieci w kontenerach
+    ip.startsWith("172.") ||     // docker bridge
+    ip.startsWith("192.168.");
+
+  // Dozwól na statyki tylko jeśli request jest "lokalny"
+  if (!isLocal) return res.status(404).send("Not found");
+
   next();
-}, express.static("/app/dist"));
+}, express.static("/app/dist", {
+  index: "index.html",
+  extensions: ["html"]
+}));
 
 
 const port = process.env.PORT || 8080;
