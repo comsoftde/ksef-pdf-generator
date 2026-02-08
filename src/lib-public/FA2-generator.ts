@@ -1,5 +1,6 @@
 import pdfMake, { TCreatedPdf } from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+//import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { setupPdfMakeFonts } from "../shared/pdfmake-setup";
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { generateStyle, getValue, hasValue } from '../shared/PDF-functions';
 import { TRodzajFaktury } from '../shared/consts/const';
@@ -21,24 +22,12 @@ import { Faktura } from './types/fa2.types';
 import { ZamowienieKorekta } from './enums/invoice.enums';
 import { AdditionalDataTypes } from './types/common.types';
 
-pdfMake.vfs = pdfFonts.vfs;
-
-(pdfMake as any).fonts = {
-  Roboto: {
-    normal: "Roboto-Regular.ttf",
-    bold: "Roboto-Medium.ttf",
-    italics: "Roboto-Italic.ttf",
-    bolditalics: "Roboto-MediumItalic.ttf",
-  },
-};
-
-
 export function generateFA2(invoice: Faktura, additionalData: AdditionalDataTypes): TCreatedPdf {
   const isKOR_RABAT: boolean =
     invoice.Fa?.RodzajFaktury?._text == TRodzajFaktury.KOR && hasValue(invoice.Fa?.OkresFaKorygowanej);
   const rabatOrRowsInvoice: Content = isKOR_RABAT ? generateRabat(invoice.Fa!) : generateWiersze(invoice.Fa!);
   const docDefinition: TDocumentDefinitions = {
-    defaultStyle: { font: "Roboto" },  
+    defaultStyle: { font: "Noto" },  
     
     content: [
       ...generateNaglowek(invoice.Fa, additionalData),
