@@ -1,4 +1,5 @@
-import "pdfmake/build/vfs_fonts";
+import pdfMake from "pdfmake/build/pdfmake";
+import fontUrl from "../assets/fonts/NotoSans-Regular.ttf?url";
 import { generateInvoice, generatePDFUPO } from '../lib-public';
 
 import { AdditionalDataTypes } from '../lib-public/types/common.types';
@@ -73,7 +74,56 @@ const defaultAdditionalData: any = {};
 
 console.log("[PUBLIC] setting window.generateInvoicePdf");
 
+let fontsReady: Promise<void> | null = null;
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function ensurePdfFonts(): Promise<void> {
+  if (fontsReady) return fontsReady;
+
+  fontsReady = (async () => {
+    console.log("[PUBLIC] Loading font:", fontUrl);
+
+    const res = await fetch(fontUrl);
+    if (!res.ok) throw new Error(`Font fetch failed: ${res.status} ${res.statusText}`);
+
+    const buf = await res.arrayBuffer();
+    const base64 = arrayBufferToBase64(buf);
+
+    (pdfMake as any).vfs = {
+      ...(pdfMake as any).vfs,
+      "NotoSans-Regular.ttf": base64,
+    };
+
+    (pdfMake as any).fonts = {
+      ...(pdfMake as any).fonts,
+      Noto: {
+        normal: "NotoSans-Regular.ttf",
+        bold: "NotoSans-Regular.ttf",
+        italics: "NotoSans-Regular.ttf",
+        bolditalics: "NotoSans-Regular.ttf",
+      },
+    };
+
+    console.log("[PUBLIC] pdfMake fonts ready");
+  })();
+
+  return fontsReady;
+}
+
 window.generateInvoicePdf = async (xml: string, additionalData: any = {}) => {
+   await ensurePdfFonts();
+
+  // WYMUSZAMY, żeby generator używał fontu Noto:
+  // Najprościej: dorzuć w additionalData flagę/ustawienie jeśli masz taką opcję,
+  // ale jeśli nie – to i tak większość generatorów bierze defaultStyle z docDefinition.
+  // Jeśli nadal nie, dopniemy to w generatorze (defaultStyle.font = "Noto").
+
   const blob = new Blob([xml], { type: "application/xml" });
   const file = new File([blob], "invoice.xml", { type: "application/xml" });
 
