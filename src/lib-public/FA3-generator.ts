@@ -22,6 +22,7 @@ import { Faktura } from './types/fa3.types';
 import { ZamowienieKorekta } from './enums/invoice.enums';
 import { AdditionalDataTypes } from './types/common.types';
 
+
 pdfMake.vfs = pdfFonts.vfs;
 
 (pdfMake as any).fonts = {
