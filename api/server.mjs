@@ -7,10 +7,16 @@ app.use(express.text({ type: "*/*", limit: "15mb" }));
 app.get("/health", (req, res) => res.status(200).send("ok"));
 
 app.post("/render/invoice", async (req, res) => {
+
+    try {
+      
   const xml = req.body;
   if (!xml || typeof xml !== "string") return res.status(400).send("XML required");
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+  });
+
   const page = await browser.newPage();
 
   await page.goto("file:///app/dist/index.html", { waitUntil: "networkidle" });
@@ -34,6 +40,12 @@ app.post("/render/invoice", async (req, res) => {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", "inline; filename=invoice.pdf");
   res.send(pdf);
+
+
+       } catch (e) {
+    console.error(e);
+    res.status(500).send(String(e.stack || e));
+  }
 });
 
 const port = process.env.PORT || 8080;
