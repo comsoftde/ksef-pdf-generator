@@ -40,18 +40,21 @@ app.post("/render/invoice", async (req, res) => {
     const page = await browser.newPage();
     await page.goto("http://127.0.0.1:8080/", { waitUntil: "networkidle" });
 
-    const base64 = await page.evaluate(async (invoiceXml, addData) => {
-      if (typeof window.generateInvoicePdf !== "function") {
-        throw new Error("window.generateInvoicePdf is not available (frontend hook missing).");
-      }
-
-      const bytes = await window.generateInvoicePdf(invoiceXml, addData);
-      const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-
-      let binary = "";
-      for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
-      return btoa(binary);
-    }, xml, additionalData);
+   const base64 = await page.evaluate(async ({ xml, additionalData }) => {
+    if (typeof window.generateInvoicePdf !== "function") {
+      throw new Error("window.generateInvoicePdf is not available");
+    }
+  
+    const bytes = await window.generateInvoicePdf(xml, additionalData);
+    const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  
+    let binary = "";
+    for (let i = 0; i < arr.length; i++) {
+      binary += String.fromCharCode(arr[i]);
+    }
+  
+    return btoa(binary);
+  }, { xml, additionalData });
 
     await browser.close();
 
