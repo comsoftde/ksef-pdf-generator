@@ -13,18 +13,16 @@ app.post("/render/invoice", async (req, res) => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
-  // ładujemy zbudowaną stronę generatora (dist)
   await page.goto("file:///app/dist/index.html", { waitUntil: "networkidle" });
 
-  // TODO: DOPASUJ do realnej funkcji/ścieżki w aplikacji
-  // Na razie próbujemy wywołać window.generateInvoicePdf(xml) i oczekujemy Uint8Array/ArrayBuffer.
+  // UWAGA: to zadziała dopiero, gdy dodamy w froncie window.generateInvoicePdf (pkt 6)
   const base64 = await page.evaluate(async (invoiceXml) => {
     if (typeof window.generateInvoicePdf !== "function") {
-      throw new Error("window.generateInvoicePdf is not available. Need to expose generator function in the frontend.");
+      throw new Error("window.generateInvoicePdf is not available (frontend hook missing).");
     }
     const bytes = await window.generateInvoicePdf(invoiceXml);
-
     const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+
     let binary = "";
     for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
     return btoa(binary);
