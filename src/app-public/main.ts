@@ -1,3 +1,4 @@
+import "pdfmake/build/vfs_fonts";
 import { generateInvoice, generatePDFUPO } from '../lib-public';
 
 import { AdditionalDataTypes } from '../lib-public/types/common.types';
