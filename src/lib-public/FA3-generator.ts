@@ -24,7 +24,7 @@ import { AdditionalDataTypes } from './types/common.types';
 
 export function generateFA3(invoice: Faktura, additionalData: AdditionalDataTypes): TCreatedPdf {
      
-      setupPdfMakeFonts();
+     await setupPdfMakeFonts();
   
   const isKOR_RABAT: boolean =
     invoice.Fa?.RodzajFaktury?._text == TRodzajFaktury.KOR && hasValue(invoice.Fa?.OkresFaKorygowanej);
