@@ -42,9 +42,9 @@ app.post("/render/invoice", async (req, res) => {
   res.send(pdf);
 
 
-       } catch (e) {
+     } catch (e) {
     console.error(e);
-    res.status(500).send(String(e.stack || e));
+    res.status(500).type("text/plain").send(String(e.stack || e));
   }
 });
 
