@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite --mode public --config vite.config.ts",
-    "build:public": "vite build --mode public --config vite.config.ts"
+    "build:public": "vite build --mode public --config vite.config.ts",
     "type": "tsc -p src/app-public/tsconfig.json --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
