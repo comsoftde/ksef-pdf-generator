@@ -13,9 +13,25 @@ app.use(express.text({ type: "*/*", limit: "15mb" }));
 // serwuj build frontu
 app.use("/", express.static("/app/dist"));
 
+
+function requireApiKey(req, res, next) {
+  const expected = process.env.API_KEY;
+  if (!expected) {
+    return res.status(500).type("text/plain").send("API_KEY not configured");
+  }
+
+  const got = req.get("x-api-key");
+  if (!got || got !== expected) {
+    return res.status(401).type("text/plain").send("Unauthorized");
+  }
+
+  next();
+}
+
+
 app.get("/health", (req, res) => res.status(200).send("ok"));
 
-app.post("/render/invoice", async (req, res) => {
+app.post("/render/invoice", requireApiKey, async (req, res) => {
   try {
     let xml;
     let additionalData = {};
@@ -67,6 +83,14 @@ app.post("/render/invoice", async (req, res) => {
     res.status(500).type("text/plain").send(String(e?.stack || e));
   }
 });
+
+app.use("/", (req, res, next) => {
+  // publiczny internet ma nie oglądać UI
+  if (req.ip !== "127.0.0.1" && req.ip !== "::1") {
+    return res.status(404).send("Not found");
+  }
+  next();
+}, express.static("/app/dist"));
 
 
 const port = process.env.PORT || 8080;
