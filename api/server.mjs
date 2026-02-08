@@ -68,8 +68,8 @@ page.on("requestfailed", (req) =>
 
 
     
-    //await page.goto("http://127.0.0.1:8080/", { waitUntil: "networkidle" });
-    await page.goto("file:///app/dist/index.html", { waitUntil: "domcontentloaded" });
+    await page.goto("http://127.0.0.1:8080/", { waitUntil: "domcontentloaded" });
+    //await page.goto("file:///app/dist/index.html", { waitUntil: "domcontentloaded" });
 
     await page.waitForFunction(
   () => typeof window.generateInvoicePdf === "function",
