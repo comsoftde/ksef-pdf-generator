@@ -3,7 +3,7 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /src
 COPY . .
 RUN npm ci
-RUN npm run build
+RUN npm run build:public
 
 # 2) runtime
 FROM node:22-bookworm-slim
