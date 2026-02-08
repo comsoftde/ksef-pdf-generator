@@ -54,7 +54,7 @@ inputUPO.addEventListener('change', async (): Promise<void> => {
   });
 });
 
-import { generateInvoice } from '../lib-public';
+// import { generateInvoice } from '../lib-public';
 // (jeśli już masz import generateInvoice, to nie dubluj)
 
 declare global {
