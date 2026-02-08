@@ -155,6 +155,10 @@ app.use((req, res, next) => {
   extensions: ["html"]
 }));
 
+app.use((req, _res, next) => {
+  console.log("HTTP", req.method, req.url, "remote:", req.socket.remoteAddress);
+  next();
+});
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Listening on :${port}`));
