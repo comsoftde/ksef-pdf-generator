@@ -24,6 +24,9 @@ import { AdditionalDataTypes } from './types/common.types';
 
 
 export async function generateFA1(invoice: Faktura, additionalData: AdditionalDataTypes): Promise<TCreatedPdf> {
+
+    await setupPdfMakeFonts();
+  
   const isKOR_RABAT: boolean =
     invoice.Fa?.RodzajFaktury?._text == TRodzajFaktury.KOR && hasValue(invoice.Fa?.OkresFaKorygowanej);
   const rabatOrRowsInvoice: Content = isKOR_RABAT ? generateRabat(invoice.Fa!) : generateWiersze(invoice.Fa!);
