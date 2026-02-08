@@ -54,23 +54,72 @@ app.post("/render/invoice", requireApiKey, async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto("http://127.0.0.1:8080/", { waitUntil: "networkidle" });
 
-   const base64 = await page.evaluate(async ({ xml, additionalData }) => {
-    if (typeof window.generateInvoicePdf !== "function") {
-      throw new Error("window.generateInvoicePdf is not available");
+page.on("pageerror", (err) => console.error("PAGEERROR:", err));
+page.on("console", (msg) => console.log("BROWSER:", msg.type(), msg.text()));
+page.on("framenavigated", (frame) => {
+  if (frame === page.mainFrame()) console.log("NAV:", frame.url());
+});
+page.on("requestfailed", (req) =>
+  console.log("REQFAIL:", req.url(), req.failure()?.errorText)
+);
+
+
+
+
+    
+    //await page.goto("http://127.0.0.1:8080/", { waitUntil: "networkidle" });
+    await page.goto("file:///app/dist/index.html", { waitUntil: "domcontentloaded" });
+
+    await page.waitForFunction(
+  () => typeof window.generateInvoicePdf === "function",
+  null,
+  { timeout: 30000 }
+);
+
+    async function evalRetry(page, fn, arg) {
+  try {
+    return await page.evaluate(fn, arg);
+  } catch (e) {
+    const msg = String(e?.message || e);
+    if (msg.includes("Execution context was destroyed")) {
+      console.log("EVAL RETRY (context destroyed)...");
+      await page.waitForTimeout(300);
+      await page.waitForFunction(() => typeof window.generateInvoicePdf === "function", null, { timeout: 30000 });
+      return await page.evaluate(fn, arg);
     }
-  
+    throw e;
+  }
+}
+
+    const base64 = await evalRetry(
+  page,
+  async ({ xml, additionalData }) => {
     const bytes = await window.generateInvoicePdf(xml, additionalData);
     const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-  
+
     let binary = "";
-    for (let i = 0; i < arr.length; i++) {
-      binary += String.fromCharCode(arr[i]);
-    }
-  
+    for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
     return btoa(binary);
-  }, { xml, additionalData });
+  },
+  { xml, additionalData }
+);
+    
+   //const base64 = await page.evaluate(async ({ xml, additionalData }) => {
+   // if (typeof window.generateInvoicePdf !== "function") {
+   //   throw new Error("window.generateInvoicePdf is not available");
+   // }
+  
+   // const bytes = await window.generateInvoicePdf(xml, additionalData);
+   // const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  
+   // let binary = "";
+   // for (let i = 0; i < arr.length; i++) {
+   //   binary += String.fromCharCode(arr[i]);
+   // }
+  
+   // return btoa(binary);
+  //}, { xml, additionalData });
 
     await browser.close();
 
