@@ -35,23 +35,21 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-
-          # WAŻNE: wskazujemy Dockerfile
           dockerfilePath: api/Dockerfile
 
-          # Jeśli masz ACR:
-          acrName: comsoftksefpdf         # np. comsoftacr
+          # ACR
+          acrName: comsoftksefpdf
+
+          # nazwa obrazu + tag
+          imageToBuild: comsoftksefpdf.azurecr.io/ksefpdfapi:${{ github.sha }}
+          imageToDeploy: comsoftksefpdf.azurecr.io/ksefpdfapi:${{ github.sha }}
 
           containerAppName: ksefpdfapi
           resourceGroup: rg-ksef-pdf
 
-          # To co ma być uruchomione (ten sam tag co build)
-          imageToDeploy: comsoftksefpdf.azurecr.io/ksefpdfapi:${{ github.sha }}
+          acrUsername: ${{ secrets.KSEFPDFAPI_REGISTRY_USERNAME }}
+          acrPassword: ${{ secrets.KSEFPDFAPI_REGISTRY_PASSWORD }}
 
-          # Jeśli nie masz managed identity pull z ACR,
-          # zostaw te dwie linie (u Ciebie już są sekrety):
-          acrUsername: ${{ secrets.KSEFPDFAPI_REGISTRY_USERNAME  }}
-          acrPassword: ${{ secrets.KSEFPDFAPI_REGISTRY_PASSWORD  }}
 
 
 
