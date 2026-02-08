@@ -351,7 +351,7 @@ export function generateStyle(): Partial<TDocumentDefinitions> {
       },
     },
     defaultStyle: {
-      font: 'Roboto',
+      font: 'Noto',
       fontSize: 7,
       lineHeight: 1.2,
     },
