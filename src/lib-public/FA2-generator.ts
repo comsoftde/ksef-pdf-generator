@@ -22,7 +22,7 @@ import { Faktura } from './types/fa2.types';
 import { ZamowienieKorekta } from './enums/invoice.enums';
 import { AdditionalDataTypes } from './types/common.types';
 
-export async function generateFA2(invoice: Faktura, additionalData: AdditionalDataTypes): TCreatedPdf {
+export async function generateFA2(invoice: Faktura, additionalData: AdditionalDataTypes): Promise<TCreatedPdf> {
 
    await setupPdfMakeFonts();
   
