@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => {
   // Uruchamiasz: vite build --mode public
   if (mode === "public") {
     return {
-
       root: publicAppRoot,
       build: {
         outDir: distDir,
