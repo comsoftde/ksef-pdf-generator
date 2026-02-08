@@ -1,5 +1,6 @@
 import pdfMake, { TCreatedPdf } from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+//import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { setupPdfMakeFonts } from "../shared/pdfmake-setup";
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { generateStyle, getValue, hasValue } from '../shared/PDF-functions';
 import { TRodzajFaktury } from '../shared/consts/const';
@@ -22,7 +23,7 @@ import { ZamowienieKorekta } from './enums/invoice.enums';
 import { AdditionalDataTypes } from './types/common.types';
 
 
-export function generateFA1(invoice: Faktura, additionalData: AdditionalDataTypes): Promise<TCreatedPdf> {
+export async function generateFA1(invoice: Faktura, additionalData: AdditionalDataTypes): Promise<TCreatedPdf> {
   const isKOR_RABAT: boolean =
     invoice.Fa?.RodzajFaktury?._text == TRodzajFaktury.KOR && hasValue(invoice.Fa?.OkresFaKorygowanej);
   const rabatOrRowsInvoice: Content = isKOR_RABAT ? generateRabat(invoice.Fa!) : generateWiersze(invoice.Fa!);
