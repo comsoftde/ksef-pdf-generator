@@ -22,7 +22,10 @@ import { Faktura } from './types/fa2.types';
 import { ZamowienieKorekta } from './enums/invoice.enums';
 import { AdditionalDataTypes } from './types/common.types';
 
-export function generateFA2(invoice: Faktura, additionalData: AdditionalDataTypes): TCreatedPdf {
+export async function generateFA2(invoice: Faktura, additionalData: AdditionalDataTypes): TCreatedPdf {
+
+   await setupPdfMakeFonts();
+  
   const isKOR_RABAT: boolean =
     invoice.Fa?.RodzajFaktury?._text == TRodzajFaktury.KOR && hasValue(invoice.Fa?.OkresFaKorygowanej);
   const rabatOrRowsInvoice: Content = isKOR_RABAT ? generateRabat(invoice.Fa!) : generateWiersze(invoice.Fa!);
