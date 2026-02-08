@@ -2,6 +2,9 @@ import { generateInvoice, generatePDFUPO } from '../lib-public';
 
 import { AdditionalDataTypes } from '../lib-public/types/common.types';
 
+console.log("[PUBLIC] main.ts loaded");
+
+
 const inputInvoice: HTMLInputElement = document.getElementById('xmlInput') as HTMLInputElement;
 const inputUPO: HTMLInputElement = document.getElementById('xmlInputUPO') as HTMLInputElement;
 
@@ -65,6 +68,8 @@ declare global {
 
 // Minimalne additionalData — dopasuj jeśli Twoje UI wymaga pól obowiązkowych
 const defaultAdditionalData: any = {};
+
+console.log("[PUBLIC] setting window.generateInvoicePdf");
 
 window.generateInvoicePdf = async (xml: string) => {
   // Zrób File z XML (w przeglądarce Playwright mamy File i Blob)
