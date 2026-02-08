@@ -44,11 +44,12 @@ jobs:
           imageToBuild: comsoftksefpdf.azurecr.io/ksefpdfapi:${{ github.sha }}
           imageToDeploy: comsoftksefpdf.azurecr.io/ksefpdfapi:${{ github.sha }}
 
-          containerAppName: ksefpdfapi
+          containerAppName: ksefpdfapi3
           resourceGroup: rg-ksef-pdf
 
           acrUsername: ${{ secrets.KSEFPDFAPI_REGISTRY_USERNAME }}
           acrPassword: ${{ secrets.KSEFPDFAPI_REGISTRY_PASSWORD }}
+
 
 
 
