@@ -1,21 +1,28 @@
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 export function setupPdfMakeFonts(): void {
-  // W zależności od bundlera/exportu pdfmake, VFS bywa w różnych miejscach:
+  // vfs może siedzieć w różnych miejscach zależnie od bundlera/ESM
+  const anyFonts: any = pdfFonts as any;
+
   const vfs =
-    (pdfFonts as any)?.pdfMake?.vfs ??
-    (pdfFonts as any)?.vfs;
+    anyFonts?.pdfMake?.vfs ??
+    anyFonts?.vfs ??
+    anyFonts?.default?.pdfMake?.vfs ??
+    anyFonts?.default?.vfs;
 
   if (!vfs) {
-    // Jeżeli tu trafisz, to znaczy że bundler wyciął VFS albo import jest inny.
+    // pomocniczo: pokaż co realnie przyszło w module (do debug)
+    // eslint-disable-next-line no-console
+    console.error("pdfFonts module keys:", Object.keys(anyFonts));
+    // eslint-disable-next-line no-console
+    console.error("pdfFonts.default keys:", anyFonts?.default ? Object.keys(anyFonts.default) : null);
+
     throw new Error("pdfmake vfs not found (vfs_fonts import mismatch)");
   }
 
-  // @ts-expect-error - pdfMake.vfs nie zawsze jest w typach
-  pdfMake.vfs = vfs;
+  (pdfMake as any).vfs = vfs;
 
-  // Rejestracja fontów (nazwa rodziny: Roboto)
   (pdfMake as any).fonts = {
     Roboto: {
       normal: "Roboto-Regular.ttf",
